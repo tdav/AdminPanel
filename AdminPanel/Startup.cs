@@ -22,15 +22,25 @@ namespace AdminPanel
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(
+                                options => options.AddPolicy("AllowCors",
+                                    builder => {
+                                        builder
+                                            .AllowAnyOrigin() 
+                                            .WithMethods("GET", "PUT", "POST", "DELETE") 
+                                            .AllowAnyHeader(); 
+            }));
+
             services.AddSingleton(typeof(MetaData));
             services.AddScoped(typeof(Repository<>));
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<MyDbContext>(options =>options.UseSqlite(connection));
+            services.AddDbContext<MyDbContext>(options => options.UseSqlite(connection));
 
 
             services.AddControllersWithViews(o => o.Conventions.Add(new GenericControllerRouteConvention())).
-                ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider())); 
+                ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider()));
+            services.AddMemoryCache();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -44,6 +54,7 @@ namespace AdminPanel
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
+            app.UseCors("AllowCors");
 
             app.UseHttpsRedirection();
             app.UseRouting();
