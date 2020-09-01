@@ -67,6 +67,7 @@ export default {
     drawer: null,
   }),
 
+
   computed: mapGetters(["metaEntities"]),
   methods: {
     ...mapActions(["getMetaAction", "getDataAction"]),
